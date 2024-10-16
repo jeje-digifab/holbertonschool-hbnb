@@ -4,6 +4,15 @@ from app.models.place import Place
 
 
 def test_review_creation():
+    """
+    Test the creation of a Review object with valid attributes and
+    relationships to a User and a Place.
+
+    This test verifies:
+    - The attributes of the Review object are correctly initialized.
+    - The relationships between the Review, Place, and User objects
+    are functioning as expected.
+    """
     # Create an instance of User for the test
     user = User(
         first_name="Test",
@@ -34,6 +43,12 @@ def test_review_creation():
 
 
 def test_set_text():
+    """
+    Test the 'set_text' method of the Review object.
+
+    This test verifies that:
+    - The text of the Review can be modified using the set_text method.
+    """
     user = User(
         first_name="Test",
         last_name="User",
@@ -50,12 +65,19 @@ def test_set_text():
     )
     review = Review(text="Great place!", rating=5, place=place, user=user)
 
+    # Modify the text of the review
     review.set_text("Amazing place!")
     assert review.text == "Amazing place!"
     print("Set text test passed!")
 
 
 def test_set_rating():
+    """
+    Test the 'set_rating' method of the Review object.
+
+    This test verifies that:
+    - The rating of the Review can be modified using the set_rating method.
+    """
     user = User(
         first_name="Test",
         last_name="User",
@@ -72,6 +94,7 @@ def test_set_rating():
     )
     review = Review(text="Great place!", rating=5, place=place, user=user)
 
+    # Modify the rating of the review
     review.set_rating(4)
     assert review.rating == 4
     print("Set rating test passed!")
