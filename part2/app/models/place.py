@@ -35,18 +35,6 @@ class Place(BaseModel):
                  owner: User):
         """
         Initializes a new instance of the Place class.
-
-        Parameters:
-            title (str): The title of the place.
-            description (str): A brief description of the place.
-            price (float): The price per night for renting the place.
-            latitude (float): The geographical latitude of the place.
-            longitude (float): The geographical longitude of the place.
-            owner (User): An instance of the User class representing
-                the owner of the place.
-
-        Raises:
-            ValueError: If the owner is not an instance of User.
         """
 
         super().__init__()
