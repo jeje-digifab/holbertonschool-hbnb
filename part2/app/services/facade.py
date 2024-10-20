@@ -1,4 +1,5 @@
 from app.persistence.repository import InMemoryRepository
+from app.models.place import Place
 
 
 class HBnBFacade:
@@ -26,17 +27,20 @@ class HBnBFacade:
         owner_id = place_data.get('owner_id')
         amenities = place_data.get('amenities')
 
-        new_place = Place(title=title, price=price, latitude=latitude,
-                          longitude=longitude, owner_id=owner_id)
+        owner = self.user_repo.get_by_id(owner_id)
+        if not owner:
+            raise ValueError("Owner not found")
 
-        if amenities:  # Check if amenities are provided
-            new_place.amenities = []  # Initialize the amenities attribute
+        new_place = Place(title=title, price=price, latitude=latitude,
+                          longitude=longitude, owner=owner)
+
+        if amenities:
+            new_place.amenities = []
             for amenity_id in amenities:
                 amenity = self.get_amenity_by_id(amenity_id)
                 if amenity:
                     new_place.amenities.append(amenity)
 
-        # Store the new Place object in the repository
         self.place_repo.save(new_place)
 
         return new_place

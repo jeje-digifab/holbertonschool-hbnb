@@ -1,11 +1,12 @@
 from flask import Flask
 from flask_restx import Api
-from flask import Flask
 from flask_jwt_extended import JWTManager
 import os
 from dotenv import load_dotenv
+from app.api.v1.places import api as places_ns
 
 load_dotenv('.env')
+
 
 def create_app():
     """app configuration"""
@@ -15,16 +16,23 @@ def create_app():
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
     app.config['DATABASE_URL'] = os.getenv('DATABASE_URL')
-    
+
     jwt = JWTManager(app)
-    
+
+    api.add_namespace(places_ns, path='/api/v1/places')
+
+    """
     from app.api.v1 import users, places, reviews, amenities
     app.register_blueprint(users.bp)
     app.register_blueprint(places.bp)
     app.register_blueprint(reviews.bp)
     app.register_blueprint(amenities.bp)
-    
+    """
+
     return app
 
-    # Placeholder for API namespaces (endpoints will be added later)
-    # Additional namespaces for places, reviews, and amenities will be added later
+    """
+    Placeholder for API namespaces (endpoints will be added later)
+    Additional namespaces for places, reviews,
+    and amenities will be added later
+    """
