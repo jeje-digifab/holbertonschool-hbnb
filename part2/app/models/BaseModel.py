@@ -44,11 +44,10 @@ class BaseModel:
         """Update the updated_at timestamp whenever the object is modified"""
         self.updated_at = datetime.utcnow()
 
-
     def to_dict(self):
         """Convert the object to a dictionary"""
         result = self.__dict__.copy()
-        print("Initial result dict:", result)
+    #    print("Initial result dict:", result)
         result['__class__'] = self.__class__.__name__
         result['created_at'] = self.created_at.isoformat()
         result['updated_at'] = self.updated_at.isoformat()
@@ -57,6 +56,9 @@ class BaseModel:
         for key, value in result.items():
             if isinstance(value, uuid.UUID):
                 result[key] = str(value)
+
+        # Remove the password from the dictionary
+        result.pop('password', None)
 
         return result
 
