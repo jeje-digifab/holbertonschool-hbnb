@@ -2,6 +2,8 @@ import unittest
 from app.models.user import User
 from datetime import datetime
 from werkzeug.security import check_password_hash
+import uuid
+
 
 class TestUser(unittest.TestCase):
 
@@ -18,7 +20,8 @@ class TestUser(unittest.TestCase):
 
     def test_user_creation(self):
         self.assertEqual(self.user.email, self.user_data['email'])
-        self.assertTrue(check_password_hash(self.user.password, self.user_data['password']))
+        self.assertTrue(check_password_hash(
+            self.user.password, self.user_data['password']))
         self.assertEqual(self.user.first_name, self.user_data['first_name'])
         self.assertEqual(self.user.last_name, self.user_data['last_name'])
         self.assertFalse(self.user.is_admin)
@@ -55,8 +58,10 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user_dict['is_owner'], self.user.is_owner)
         self.assertEqual(user_dict['owned_places'], [])
         self.assertEqual(user_dict['rented_places'], [])
-        self.assertEqual(user_dict['created_at'], self.user.created_at.isoformat())
-        self.assertEqual(user_dict['updated_at'], self.user.updated_at.isoformat())
+        self.assertEqual(user_dict['created_at'],
+                         self.user.created_at.isoformat())
+        self.assertEqual(user_dict['updated_at'],
+                         self.user.updated_at.isoformat())
         self.assertNotIn('password', user_dict)
 
     def test_validate_email(self):
@@ -86,6 +91,26 @@ class TestUser(unittest.TestCase):
         self.assertEqual(self.user.email, new_data['email'])
         self.assertEqual(self.user.first_name, new_data['first_name'])
         self.assertEqual(self.user.last_name, new_data['last_name'])
+
+    def test_user_uuid(self):
+        self.assertIsNotNone(self.user.id)
+        self.assertIsInstance(self.user.id, uuid.UUID)
+
+    def test_user_in_memory_management(self):
+        user_repository = []
+        user_repository.append(self.user)
+        self.assertIn(self.user, user_repository)
+
+    def test_create_user_with_duplicate_email(self):
+        User.create_user(self.user_data)
+        with self.assertRaises(ValueError):
+            User.create_user(self.user_data)
+
+    def test_user_uuid_uniqueness(self):
+        user1 = User(**self.user_data)
+        user2 = User(**self.user_data)
+        self.assertNotEqual(user1.id, user2.id)
+
 
 if __name__ == '__main__':
     unittest.main()
