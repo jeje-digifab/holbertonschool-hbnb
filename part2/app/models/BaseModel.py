@@ -23,6 +23,7 @@ class BaseModel:
         update(data): Updates model attributes based on the
         provided dictionary.
     """
+
     def __init__(self, *args, **kwargs):
         if kwargs:
             for key, value in kwargs.items():
@@ -33,9 +34,9 @@ class BaseModel:
                         setattr(self, key, value)
 
             if 'id' not in kwargs:
-                self.id = str(uuid.uuid4())
+                self.id = uuid.uuid4()
         else:
-            self.id = str(uuid.uuid4())
+            self.id = uuid.uuid4()
             self.created_at = datetime.utcnow()
             self.updated_at = datetime.utcnow()
 
@@ -43,12 +44,20 @@ class BaseModel:
         """Update the updated_at timestamp whenever the object is modified"""
         self.updated_at = datetime.utcnow()
 
+
     def to_dict(self):
         """Convert the object to a dictionary"""
         result = self.__dict__.copy()
+        print("Initial result dict:", result)
         result['__class__'] = self.__class__.__name__
         result['created_at'] = self.created_at.isoformat()
         result['updated_at'] = self.updated_at.isoformat()
+
+        # Convert all UUIDs in the result to strings
+        for key, value in result.items():
+            if isinstance(value, uuid.UUID):
+                result[key] = str(value)
+
         return result
 
     def update(self, data):
