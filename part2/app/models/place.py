@@ -53,6 +53,7 @@ class Place(BaseModel):
 
         if not isinstance(owner, User):
             raise ValueError("Owner must be an instance of User.")
+        self.owner = owner
 
         self.title = title
         self.description = description
@@ -60,6 +61,7 @@ class Place(BaseModel):
         self.latitude = latitude
         self.longitude = longitude
         self.owner = owner
+        self.owner_id = owner.id
         self.reviews = []  # List to store related reviews
         self.amenities = []  # List to store related amenities
 

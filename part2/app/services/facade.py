@@ -4,6 +4,7 @@ from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
 
+
 class HBnBFacade:
     """Facade for managing users and places in the HBnB application.
 
@@ -102,30 +103,29 @@ class HBnBFacade:
 
     def create_place(self, place_data):
         """Create a new place with the provided data."""
-        if 'name' not in place_data or 'location' not in place_data:
-            raise ValueError("Missing required fields: 'name' and 'location'.")
-        
-        place = Place(**place_data)
+        if 'title' not in place_data or 'latitude' not in place_data or 'longitude' not in place_data:
+            raise ValueError(
+                "Missing required fields: 'title', 'latitude', and 'longitude'.")
+
+        owner_id = place_data.get('owner_id')
+        if not owner_id:
+            raise ValueError("Owner ID is required")
+
+        owner = self.user_repo.get(owner_id)
+        if not owner:
+            raise ValueError("Owner not found")
+
+        place = Place(
+            title=place_data['title'],
+            description=place_data.get('description', ''),
+            price=place_data['price'],
+            latitude=place_data['latitude'],
+            longitude=place_data['longitude'],
+            owner=owner
+        )
+
         self.place_repo.add(place)
         return place
-
-    def get_place(self, place_id):
-        """Retrieve a place by its unique ID."""
-        return self.place_repo.get(place_id)
-
-    def get_all_places(self):
-        """Retrieve all places."""
-        return self.place_repo.get_all()
-
-    def update_place(self, place_id, place_data):
-        """Update an existing place's information."""
-        place = self.get_place(place_id)
-        if place:
-            for key, value in place_data.items():
-                setattr(place, key, value)  # Update place attributes
-            self.place_repo.update(place_id, place)
-            return place
-        return None
 
     def create_amenity(self, amenity_data):
         """Create a new amenity with the provided data."""
@@ -138,7 +138,6 @@ class HBnBFacade:
         amenity = Amenity(**amenity_data)
         self.amenity_repo.add(amenity)
         return amenity
-
 
     def get_amenity(self, amenity_id):
         """Retrieve an amenity by its unique ID.
@@ -157,7 +156,6 @@ class HBnBFacade:
             list: A list of Amenity instances.
         """
         return self.amenity_repo.get_all()
-
 
     def update_amenity(self, amenity_id, amenity_data):
         """
@@ -181,12 +179,11 @@ class HBnBFacade:
 
         for key, value in amenity_data.items():
             if hasattr(amenity, key):
-                setattr(amenity, key, value)  # Update the attribute with the new value
+                # Update the attribute with the new value
+                setattr(amenity, key, value)
             else:
                 raise ValueError(f"Invalid attribute '{key}' for Amenity")
         return amenity
-
-
 
     def delete_amenity(self, amenity_id):
         """Delete an amenity by its ID.
@@ -196,7 +193,6 @@ class HBnBFacade:
             bool: True if the amenity was successfully deleted, otherwise False.
         """
         return self.amenity_repo.delete(amenity_id)
-
 
     def create_review(self, review_data):
         """

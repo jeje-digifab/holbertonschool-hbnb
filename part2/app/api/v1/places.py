@@ -47,24 +47,60 @@ class PlaceList(Resource):
     def post(self):
         """Register a new place"""
         place_data = api.payload
-        owner_id = place_data.get(owner_id)
-        """verify is owner exist"""
+        owner_id = place_data.get("owner_id")
+
+        print(f"Received owner_id: {owner_id}")  # Print the received owner_id
+
+        """verify if owner exists"""
         owner = facade.get_user(owner_id)
+        print(f"Owner found: {owner}")  # Print the owner object
+
         if not owner:
             return {'error': 'Owner not found'}, 404
 
+        # Associate the owner with the place
+        place_data['owner'] = owner
+
         new_place = facade.create_place(place_data)
+
+        # Print statements for verification
+        print(f"Owner ID (using place.owner.id): {new_place.owner.id}")
+        print(f"Owner ID (using place.owner_id): {new_place.owner_id}")
+
         return new_place, 201
 
+    @api.response(200, 'List of places retrieved successfully')
+    def get(self):
+        """Retrieve a list of all places"""
+        places = facade.get_all_places()
+        if places is not None:
+            place_list = []
+            for place in places:
+                # Print statements for verification
+                print(f"Owner ID (using place.owner.id): {place.owner.id}")
+                print(f"Owner ID (using place.owner_id): {place.owner_id}")
 
-@api.response(200, 'List of places retrieved successfully')
-def get(self):
-    """Retrieve a list of all places"""
-    places = facade.get_all_places()
-    if places is not None:
-        return places, 200
-    else:
-        return {'message': 'List of places not retrieved successfully'}, 500
+                place_list.append({
+                    'id': place.id,
+                    'title': place.title,
+                    'description': place.description,
+                    'price': place.price,
+                    'latitude': place.latitude,
+                    'longitude': place.longitude,
+                    'owner': {
+                        'id': place.owner.id,
+                        'first_name': place.owner.first_name,
+                        'last_name': place.owner.last_name,
+                        'email': place.owner.email
+                    },
+                    'owner_id': place.owner_id,  # Ajout de owner_id pour la vérification
+                    'amenities': [amenity.id for amenity in place.amenities],
+                    'created_at': place.created_at.isoformat(),
+                    'updated_at': place.updated_at.isoformat()
+                })
+            return place_list, 200
+        else:
+            return {'message': 'List of places not retrieved successfully'}, 500
 
 
 @api.route('/<place_id>')
@@ -73,12 +109,32 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get place details by ID"""
-        # Placeholder for the logic to retrieve a place by ID,
-        # including associated owner and amenities
         place = facade.get_place(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
-        return place, 200
+
+        # Print statements for verification
+        print(f"Owner ID (using place.owner.id): {place.owner.id}")
+        print(f"Owner ID (using place.owner_id): {place.owner_id}")
+
+        return {
+            'id': place.id,
+            'title': place.title,
+            'description': place.description,
+            'price': place.price,
+            'latitude': place.latitude,
+            'longitude': place.longitude,
+            'owner': {
+                'id': place.owner.id,
+                'first_name': place.owner.first_name,
+                'last_name': place.owner.last_name,
+                'email': place.owner.email
+            },
+            'owner_id': place.owner_id,  # Ajout de owner_id pour la vérification
+            'amenities': [amenity.id for amenity in place.amenities],
+            'created_at': place.created_at.isoformat(),
+            'updated_at': place.updated_at.isoformat()
+        }, 200
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
@@ -86,9 +142,30 @@ class PlaceResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
         """Update a place's information"""
-        # Placeholder for the logic to update a place by ID
         place_data = api.payload
         updated_place = facade.update_place(place_id, place_data)
         if not updated_place:
             return {'error': 'Place not found'}, 404
-        return updated_place, 200
+
+        # Print statements for verification
+        print(f"Owner ID (using place.owner.id): {updated_place.owner.id}")
+        print(f"Owner ID (using place.owner_id): {updated_place.owner_id}")
+
+        return {
+            'id': updated_place.id,
+            'title': updated_place.title,
+            'description': updated_place.description,
+            'price': updated_place.price,
+            'latitude': updated_place.latitude,
+            'longitude': updated_place.longitude,
+            'owner': {
+                'id': updated_place.owner.id,
+                'first_name': updated_place.owner.first_name,
+                'last_name': updated_place.owner.last_name,
+                'email': updated_place.owner.email
+            },
+            'owner_id': updated_place.owner_id,  # Ajout de owner_id pour la vérification
+            'amenities': [amenity.id for amenity in updated_place.amenities],
+            'created_at': updated_place.created_at.isoformat(),
+            'updated_at': updated_place.updated_at.isoformat()
+        }, 200
