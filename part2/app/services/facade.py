@@ -1,6 +1,6 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.user import User
-
+from app.models.place import Place
 
 class HBnBFacade:
     """Facade for managing users and places in the HBnB application.
@@ -98,24 +98,89 @@ class HBnBFacade:
             return user
         return None
 
-    # Placeholder method for fetching a place by ID
-    def get_place(self, place_id):
+    def create_place(self, place_data):
+        owner_id = place_data.pop('owner_id', None)
+        if not owner_id:
+            return None, "Owner ID is required"
 
-        # Logic will be implemented in later tasks
-        pass
+        owner = self.get_user(owner_id)
+        if not owner:
+            return None, "Owner not found"
+
+        try:
+            place = Place(
+                title=place_data.get('title'),
+                description=place_data.get('description'),
+                price=place_data.get('price'),
+                latitude=place_data.get('latitude'),
+                longitude=place_data.get('longitude'),
+                owner=owner
+            )
+            self.place_repo.add(place)
+            return place, None
+        except ValueError as e:
+            return None, str(e)
+    # Placeholder method for fetching a place by ID
+
+    def get_place(self, place_id):
+        place = self.place_repo.get(place_id)
+        if place:
+            return {
+                'id': place.id,
+                'title': place.title,
+                'description': place.description,
+                'price': place.price,
+                'latitude': place.latitude,
+                'longitude': place.longitude,
+                'owner': {
+                    'id': place.owner.id,
+                    'first_name': place.owner.first_name,
+                    'last_name': place.owner.last_name,
+                    'email': place.owner.email
+                },
+                'reviews': [self.get_review(review.id) for review in place.reviews],
+                'amenities': [self.get_amenity(amenity.id) for amenity in place.amenities]
+            }
+        return None
+
+    def get_all_places(self):
+        return self.place.repo.get_all()
+
+    def update_place(self, place_id, place_data):
+        place = self.place_repo.get(place_id)
+        if not place:
+            return None, "Place not found"
+
+        error_message = None
+        if 'title' in place_data:
+            error_message = place.set_title(place_data['title'])
+        if 'description' in place_data:
+            error_message = place.set_description(place_data['description'])
+        if 'price' in place_data:
+            error_message = place.set_price(place_data['price'])
+        if 'latitude' in place_data:
+            error_message = place.set_latitude(place_data['latitude'])
+        if 'longitude' in place_data:
+            error_message = place.set_longitude(place_data['longitude'])
+
+        if error_message:
+            return None, error_message
+
+        self.place_repo.update(place_id, place)
+        return place, None
 
     def create_amenity(self, amenity_data):
-    # Placeholder for logic to create an amenity
+        # Placeholder for logic to create an amenity
         pass
 
     def get_amenity(self, amenity_id):
-    # Placeholder for logic to retrieve an amenity by ID
+        # Placeholder for logic to retrieve an amenity by ID
         pass
 
     def get_all_amenities(self):
-    # Placeholder for logic to retrieve all amenities
+        # Placeholder for logic to retrieve all amenities
         pass
 
     def update_amenity(self, amenity_id, amenity_data):
-    # Placeholder for logic to update an amenity
+        # Placeholder for logic to update an amenity
         pass

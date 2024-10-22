@@ -1,6 +1,9 @@
 from flask import Flask, jsonify, request, abort
+from flask_restx import Namespace
 from app.models.amenity import Amenity
 app = Flask(__name__)
+
+api = Namespace('amenities', description='Amenities operations')
 
 # list to stock Amenities
 amenities = []
